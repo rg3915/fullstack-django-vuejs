@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: lorem_db
+    image: postgres:14-alpine
+    restart: always
+    user: postgres  # importante definir o usuário
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - LC_ALL=C.UTF-8
+      - POSTGRES_PASSWORD=postgres  # senha padrão
+      - POSTGRES_USER=postgres  # usuário padrão
+      - POSTGRES_DB=db  # necessário porque foi configurado assim no settings
+    ports:
+      - 5430:5432  # repare na porta externa 5430
+    networks:
+      - lorem
+
+  pgadmin:
+    container_name: lorem_pgadmin
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - 5052:80
+    networks:
+      - lorem
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lorem_app
+    hostname: app
+    stdin_open: true
+    expose:
+      - '8000'
+    volumes:
+      - .env:/app/.env
+    command: bash -c "gunicorn backend.wsgi:application -b 0.0.0.0:8000"
+    depends_on:
+      - db
+    networks:
+      - lorem
+
+  nginx:
+    container_name: lorem_nginx
+    image: nginx
+    hostname: nginx
+    ports:
+      - '80:80'
+    volumes:
+      - ./docker/config/nginx/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+    networks:
+      - lorem
+
+  mailhog:
+    container_name: lorem_mailhog
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: 'none'
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - lorem
+
+volumes:
+  pgdata:
+  pgadmin:
+
+networks:
+  lorem:
