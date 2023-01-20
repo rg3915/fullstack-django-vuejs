@@ -55,7 +55,7 @@ services:
     image: nginx
     hostname: nginx
     ports:
-      - '80:80'
+      - '80:8000'
     volumes:
       - ./docker/config/nginx/:/etc/nginx/conf.d/
     depends_on:
