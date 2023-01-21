@@ -8,6 +8,7 @@ Teste de Django e VueJS no Docker.
 * [Django 4.1.5](https://www.djangoproject.com/)
 * [Django Rest Framework 3.14.0](https://www.django-rest-framework.org/)
 * [VueJS 3.2.13](https://vuejs.org/)
+* [Node 18](https://nodejs.org/en/)
 
 ## Como rodar o projeto?
 
@@ -26,10 +27,19 @@ python contrib/env_gen.py
 docker-compose up -d
 
 docker container exec -it \
-lorem_app \
+skynet_app \
 python manage.py migrate
 
 docker container exec -it \
-lorem_app \
+skynet_app \
 python manage.py createsuperuser --username="admin" --email=""
 ```
+
+
+## Links
+
+https://v2.vuejs.org/v2/cookbook/dockerize-vuejs-app.html
+
+https://dev.to/programmingdecoded/docker-configuration-with-nginx-routing-for-vue-and-laravel-49e9
+
+https://stackoverflow.com/questions/72548750/docker-nginx-reverse-proxy-to-vue-vite-and-backend-containers-unexpected-result

@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   db:
-    container_name: lorem_db
+    container_name: skynet_db
     image: postgres:14-alpine
     restart: always
     user: postgres  # importante definir o usuário
@@ -16,10 +16,10 @@ services:
     ports:
       - 5430:5432  # repare na porta externa 5430
     networks:
-      - lorem
+      - skynet
 
   pgadmin:
-    container_name: lorem_pgadmin
+    container_name: skynet_pgadmin
     image: dpage/pgadmin4
     restart: unless-stopped
     volumes:
@@ -31,13 +31,13 @@ services:
     ports:
       - 5052:80
     networks:
-      - lorem
+      - skynet
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: lorem_app
+    container_name: skynet_app
     hostname: app
     stdin_open: true
     expose:
@@ -48,23 +48,23 @@ services:
     depends_on:
       - db
     networks:
-      - lorem
+      - skynet
 
   nginx:
-    container_name: lorem_nginx
+    container_name: skynet_nginx
     image: nginx
     hostname: nginx
     ports:
-      - '80:8000'
+      - '80:8080'
     volumes:
       - ./docker/config/nginx/:/etc/nginx/conf.d/
     depends_on:
       - app
     networks:
-      - lorem
+      - skynet
 
   mailhog:
-    container_name: lorem_mailhog
+    container_name: skynet_mailhog
     image: mailhog/mailhog
     restart: always
     logging:
@@ -73,11 +73,21 @@ services:
       - 1025:1025
       - 8025:8025
     networks:
-      - lorem
+      - skynet
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    hostname: vuejs
+    ports:
+      - '8080:8080'
+    networks:
+      - skynet
 
 volumes:
   pgdata:
   pgadmin:
 
 networks:
-  lorem:
+  skynet:
