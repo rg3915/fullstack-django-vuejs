@@ -2,73 +2,58 @@ version: "3.8"
 
 services:
   db:
-    container_name: skynet_db
     image: postgres:14-alpine
-    restart: always
-    user: postgres  # importante definir o usuário
+    restart: unless-stopped
+    user: postgres # importante definir o usuário
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
       - LC_ALL=C.UTF-8
-      - POSTGRES_PASSWORD=postgres  # senha padrão
-      - POSTGRES_USER=postgres  # usuário padrão
-      - POSTGRES_DB=db  # necessário porque foi configurado assim no settings
+      - POSTGRES_PASSWORD=postgres # senha padrão
+      - POSTGRES_USER=postgres # usuário padrão
+      - POSTGRES_DB=db # necessário porque foi configurado assim no settings
     ports:
-      - 5430:5432  # repare na porta externa 5430
+      - 5430:5432 # repare na porta externa 5430
     networks:
       - skynet
 
   pgadmin:
-    container_name: skynet_pgadmin
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:6
     restart: unless-stopped
     volumes:
-       - pgadmin:/var/lib/pgadmin
+      - pgadmin:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
       - 5052:80
     networks:
       - skynet
 
-  app:
+  backend:
     build:
-      context: .
+      context: backend
       dockerfile: Dockerfile
-    container_name: skynet_app
-    hostname: app
-    stdin_open: true
+    restart: unless-stopped
     expose:
-      - '8000'
+      - 8080
+      - 80
+    ports:
+      - "8000:8000"
+      - "8080:80"
     volumes:
       - .env:/app/.env
-    command: bash -c "gunicorn backend.wsgi:application -b 0.0.0.0:8000"
     depends_on:
       - db
     networks:
       - skynet
 
-  nginx:
-    container_name: skynet_nginx
-    image: nginx
-    hostname: nginx
-    ports:
-      - '80:8080'
-    volumes:
-      - ./docker/config/nginx/:/etc/nginx/conf.d/
-    depends_on:
-      - app
-    networks:
-      - skynet
-
   mailhog:
-    container_name: skynet_mailhog
-    image: mailhog/mailhog
-    restart: always
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
     logging:
-      driver: 'none'
+      driver: "none"
     ports:
       - 1025:1025
       - 8025:8025
@@ -77,11 +62,13 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    hostname: vuejs
+      context: frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
     ports:
-      - '8080:8080'
+      - "80:80"
+    depends_on:
+      - backend
     networks:
       - skynet
 
