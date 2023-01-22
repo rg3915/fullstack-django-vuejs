@@ -1,3 +1,7 @@
+"""
+Django 4.1.5
+"""
+
 from pathlib import Path
 
 from decouple import config, Csv
@@ -13,7 +17,12 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=Csv())
 
-CSRF_TRUSTED_ORIGINS = ['http://*.127.0.0.1']
+INTERNAL_IPS = (
+    '127.0.0.1:8000',
+    '127.0.0.1:8080',
+)
+
+CSRF_TRUSTED_ORIGINS = ['https://*.127.0.0.1:8080']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
