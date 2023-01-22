@@ -19,14 +19,14 @@ Teste de Django e VueJS no Docker.
 - Rode as migrações.
 
 ```
-git clone https://github.com/rg3915/fullstack-django-vuejs-2023.git
-cd fullstack-django-vuejs-2023
+git clone https://github.com/rg3915/fullstack-django-vuejs.git
+cd fullstack-django-vuejs
 
 python contrib/env_gen.py
 
-docker-compose up --build
-docker compose run backend manage migrate
-docker compose run backend manage createsuperuser --username="admin" --email=""
+docker-compose up --build -d
+docker-compose run backend manage migrate
+docker-compose run backend manage createsuperuser --username="admin" --email=""
 ```
 
 ## Links
